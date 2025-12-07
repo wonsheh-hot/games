@@ -1,0 +1,62 @@
+import { ReviewItem } from './types';
+
+export const REVIEW_DATA: ReviewItem[] = [
+  // Short Phrases
+  { id: 1, english: "add...to...", chinese: "把……添加到……", type: "phrase" },
+  { id: 2, english: "cut up", chinese: "切碎；剁碎", type: "phrase" },
+  { id: 3, english: "pour...into...", chinese: "将……倒入……", type: "phrase" },
+  { id: 4, english: "cut...into...", chinese: "将……切成……", type: "phrase" },
+  { id: 5, english: "tablespoon of", chinese: "一汤匙……", type: "phrase" },
+  { id: 6, english: "put...into...", chinese: "把……放进……", type: "phrase" },
+  { id: 7, english: "mashed potatoes", chinese: "土豆泥", type: "phrase" },
+  { id: 8, english: "do with", chinese: "处理", type: "phrase" },
+  { id: 9, english: "take...out of...", chinese: "把……从……里取出来", type: "phrase" },
+  { id: 10, english: "put...back", chinese: "将……放回", type: "phrase" },
+  { id: 11, english: "mix...with...", chinese: "（使）……和……混合", type: "phrase" },
+  { id: 12, english: "make sth for sb", chinese: "为某人做某物", type: "phrase" },
+  { id: 13, english: "go into", chinese: "进入", type: "phrase" },
+  { id: 14, english: "feel like", chinese: "感觉像", type: "phrase" },
+  { id: 15, english: "steamed fish", chinese: "清蒸鱼", type: "phrase" },
+  { id: 16, english: "hot and sour soup", chinese: "酸辣汤", type: "phrase" },
+  { id: 17, english: "go boating", chinese: "去划船", type: "phrase" },
+  { id: 18, english: "thanks to", chinese: "归功于；由于；因为", type: "phrase" },
+  { id: 19, english: "every time", chinese: "每当", type: "phrase" },
+  { id: 20, english: "sit at the table", chinese: "坐在桌前", type: "phrase" },
+  { id: 21, english: "along with", chinese: "除……以外（还）；与……同样地", type: "phrase" },
+  { id: 22, english: "connect...to...", chinese: "把……和……连接", type: "phrase" },
+  { id: 23, english: "one of...", chinese: "……之一", type: "phrase" },
+  { id: 24, english: "warm up", chinese: "（使）活跃起来；热身；预热", type: "phrase" },
+  { id: 25, english: "fill...with...", chinese: "（使）充满；（使）填满", type: "phrase" },
+  { id: 26, english: "think of", chinese: "想起；想到", type: "phrase" },
+  { id: 27, english: "tell sb about sth", chinese: "告诉某人关于某事", type: "phrase" },
+  { id: 28, english: "host family", chinese: "寄宿家庭", type: "phrase" },
+  { id: 29, english: "at least", chinese: "至少", type: "phrase" },
+  { id: 30, english: "make friends with", chinese: "（和某人）交朋友", type: "phrase" },
+  { id: 31, english: "around the world", chinese: "全世界", type: "phrase" },
+  { id: 32, english: "the secret to", chinese: "……的秘密", type: "phrase" },
+  { id: 33, english: "according to", chinese: "根据；依照", type: "phrase" },
+  { id: 34, english: "share sth with sb", chinese: "和某人分享某物", type: "phrase" },
+  { id: 35, english: "far from", chinese: "离……远", type: "phrase" },
+  { id: 36, english: "be born", chinese: "出世，出生", type: "phrase" },
+  { id: 37, english: "one by one", chinese: "逐个地；逐一地", type: "phrase" },
+
+  // Usage Collection (Grammar/Usage)
+  { id: 38, english: "learn to do sth", chinese: "学习/学会做某事", type: "usage" },
+  { id: 39, english: "teach sb how to do sth", chinese: "教某人（如何）做某事", type: "usage" },
+  { id: 40, english: "make sb adjective", chinese: "使某人……（形容词）", type: "usage" },
+  { id: 41, english: "make sb do sth", chinese: "使某人做某事", type: "usage" },
+  { id: 42, english: "show sth to sb", chinese: "向某人展示某物", type: "usage" },
+  { id: 43, english: "let sb do sth", chinese: "让某人做某事", type: "usage" },
+  { id: 44, english: "love doing sth", chinese: "喜欢做某事", type: "usage" },
+  { id: 45, english: "the way to do sth", chinese: "做某事的方法", type: "usage" },
+  { id: 46, english: "use sth to do", chinese: "用某物做……", type: "usage" },
+  { id: 47, english: "keep sth adjective", chinese: "保持某物……", type: "usage" },
+  { id: 48, english: "find sth adjective", chinese: "发现某物……", type: "usage" },
+  { id: 49, english: "How about", chinese: "……怎么样？", type: "usage" },
+  { id: 50, english: "It is adjective to do sth", chinese: "做某事是……的", type: "usage" },
+  { id: 51, english: "There be sb doing sth", chinese: "有某人在做某事", type: "usage" },
+];
+
+export const AVATARS = [
+  "🐶", "🐱", "🦊", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🦄", "🐙"
+];

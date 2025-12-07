@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EngPower: 8th Grade Master</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM (UMD Global Builds) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for in-browser JSX compilation -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Nunito', 'sans-serif'],
+              display: ['Fredoka', 'sans-serif'],
+            },
+            colors: {
+              primary: '#6366f1',
+              secondary: '#ec4899',
+              accent: '#8b5cf6',
+              success: '#10b981',
+              warning: '#f59e0b',
+              background: '#f8fafc',
+              surface: '#ffffff',
+            },
+            animation: {
+              'bounce-short': 'bounce 0.5s infinite',
+              'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'slide-in': 'slideIn 0.3s ease-out forwards',
+              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+              'road-scroll': 'road-scroll 0.6s linear infinite',
+              'road-scroll-fast': 'road-scroll 0.15s linear infinite',
+              'wheel-spin': 'wheel-spin 0.5s linear infinite',
+              'wheel-spin-fast': 'wheel-spin 0.1s linear infinite',
+              'rumble': 'engine-rumble 0.15s infinite linear',
+            },
+            keyframes: {
+              slideIn: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              shake: {
+                '10%': { transform: 'translate3d(-1px, 0, 0)' },
+                '20%': { transform: 'translate3d(2px, 0, 0)' },
+                '30%': { transform: 'translate3d(-4px, 0, 0)' },
+                '40%': { transform: 'translate3d(4px, 0, 0)' },
+                '50%': { transform: 'translate3d(-4px, 0, 0)' },
+                '60%': { transform: 'translate3d(4px, 0, 0)' },
+                '70%': { transform: 'translate3d(-4px, 0, 0)' },
+                '80%': { transform: 'translate3d(2px, 0, 0)' },
+                '90%': { transform: 'translate3d(-1px, 0, 0)' },
+              },
+              'road-scroll': {
+                '0%': { transform: 'translateX(0)' },
+                '100%': { transform: 'translateX(-33.33%)' },
+              },
+              'wheel-spin': {
+                '0%': { transform: 'rotate(0deg)' },
+                '100%': { transform: 'rotate(360deg)' },
+              },
+              'engine-rumble': {
+                  '0%': { transform: 'translateY(0) scale(1)' },
+                  '25%': { transform: 'translateY(-1px) scale(1.02)' },
+                  '50%': { transform: 'translateY(0) scale(1)' },
+                  '75%': { transform: 'translateY(1px) scale(0.98)' },
+                  '100%': { transform: 'translateY(0) scale(1)' },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+      body {
+        background-color: #f0fdf4;
+        background-image: radial-gradient(#6366f1 0.5px, transparent 0.5px), radial-gradient(#6366f1 0.5px, #f0fdf4 0.5px);
+        background-size: 20px 20px;
+        background-position: 0 0, 10px 10px;
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useRef } = React;
+
+      // --- CONSTANTS & DATA ---
+      const REVIEW_DATA = [
+        // Short Phrases
+        { id: 1, english: "add...to...", chinese: "把……添加到……", type: "phrase", context: "Please ______ some salt ______ the soup.", full: "Please add some salt to the soup." },
+        { id: 2, english: "cut up", chinese: "切碎；剁碎", type: "phrase", context: "Don't forget to ______ the vegetables for the salad.", full: "Don't forget to cut up the vegetables for the salad." },
+        { id: 3, english: "pour...into...", chinese: "将……倒入……", type: "phrase", context: "Please ______ the milk ______ the blender.", full: "Please pour the milk into the blender." },
+        { id: 4, english: "cut...into...", chinese: "将……切成……", type: "phrase", context: "Can you ______ the cake ______ small pieces?", full: "Can you cut the cake into small pieces?" },
+        { id: 5, english: "tablespoon of", chinese: "一汤匙……", type: "phrase", context: "You need to add one ______ honey to the tea.", full: "You need to add one tablespoon of honey to the tea." },
+        { id: 6, english: "put...into...", chinese: "把……放进……", type: "phrase", context: "______ the dirty clothes ______ the washing machine.", full: "Put the dirty clothes into the washing machine." },
+        { id: 7, english: "mashed potatoes", chinese: "土豆泥", type: "phrase", context: "I like to eat ______ with steak.", full: "I like to eat mashed potatoes with steak." },
+        { id: 8, english: "do with", chinese: "处理", type: "phrase", context: "What should we ______ the old books?", full: "What should we do with the old books?" },
+        { id: 9, english: "take...out of...", chinese: "把……从……里取出来", type: "phrase", context: "Please ______ the books ______ your bag.", full: "Please take the books out of your bag." },
+        { id: 10, english: "put...back", chinese: "将……放回", type: "phrase", context: "Please ______ the dictionary ______ on the shelf.", full: "Please put the dictionary back on the shelf." },
+        { id: 11, english: "mix...with...", chinese: "（使）……和……混合", type: "phrase", context: "You should ______ the flour ______ the water.", full: "You should mix the flour with the water." },
+        { id: 12, english: "make sth for sb", chinese: "为某人做某物", type: "phrase", context: "She will ______ (make a cake for) her son on his birthday.", full: "She will make a cake for her son on his birthday." },
+        { id: 13, english: "go into", chinese: "进入", type: "phrase", context: "Let's ______ the house, it's raining.", full: "Let's go into the house, it's raining." },
+        { id: 14, english: "feel like", chinese: "感觉像；想要", type: "phrase", context: "I ______ eating ice cream today.", full: "I feel like eating ice cream today." },
+        { id: 15, english: "steamed fish", chinese: "清蒸鱼", type: "phrase", context: "______ is a very healthy and delicious dish.", full: "Steamed fish is a very healthy and delicious dish." },
+        { id: 16, english: "hot and sour soup", chinese: "酸辣汤", type: "phrase", context: "Do you like to drink ______?", full: "Do you like to drink hot and sour soup?" },
+        { id: 17, english: "go boating", chinese: "去划船", type: "phrase", context: "We plan to ______ on the lake this weekend.", full: "We plan to go boating on the lake this weekend." },
+        { id: 18, english: "thanks to", chinese: "归功于；由于；因为", type: "phrase", context: "______ your help, we finished the work on time.", full: "Thanks to your help, we finished the work on time." },
+        { id: 19, english: "every time", chinese: "每当", type: "phrase", context: "______ I see him, he is smiling.", full: "Every time I see him, he is smiling." },
+        { id: 20, english: "sit at the table", chinese: "坐在桌前", type: "phrase", context: "They ______ to have dinner together every evening.", full: "They sit at the table to have dinner together every evening." },
+        { id: 21, english: "along with", chinese: "除……以外（还）；与……同样地", type: "phrase", context: "She came to the party ______ her sister.", full: "She came to the party along with her sister." },
+        { id: 22, english: "connect...to...", chinese: "把……和……连接", type: "phrase", context: "Please ______ the printer ______ the computer.", full: "Please connect the printer to the computer." },
+        { id: 23, english: "one of...", chinese: "……之一", type: "phrase", context: "Beijing is ______ the biggest cities in China.", full: "Beijing is one of the biggest cities in China." },
+        { id: 24, english: "warm up", chinese: "（使）活跃起来；热身；预热", type: "phrase", context: "We need to ______ before swimming.", full: "We need to warm up before swimming." },
+        { id: 25, english: "fill...with...", chinese: "（使）充满；（使）填满", type: "phrase", context: "Please ______ the glass ______ water.", full: "Please fill the glass with water." },
+        { id: 26, english: "think of", chinese: "想起；想到", type: "phrase", context: "What do you ______ this movie?", full: "What do you think of this movie?" },
+        { id: 27, english: "tell sb about sth", chinese: "告诉某人关于某事", type: "phrase", context: "Can you ______ (tell me about) your trip?", full: "Can you tell me about your trip?" },
+        { id: 28, english: "host family", chinese: "寄宿家庭", type: "phrase", context: "I stayed with a ______ when I was studying in London.", full: "I stayed with a host family when I was studying in London." },
+        { id: 29, english: "at least", chinese: "至少", type: "phrase", context: "You should drink ______ eight glasses of water a day.", full: "You should drink at least eight glasses of water a day." },
+        { id: 30, english: "make friends with", chinese: "（和某人）交朋友", type: "phrase", context: "It is easy to ______ him because he is friendly.", full: "It is easy to make friends with him because he is friendly." },
+        { id: 31, english: "around the world", chinese: "全世界", type: "phrase", context: "People ______ love playing soccer.", full: "People around the world love playing soccer." },
+        { id: 32, english: "the secret to", chinese: "……的秘密", type: "phrase", context: "What is ______ happiness?", full: "What is the secret to happiness?" },
+        { id: 33, english: "according to", chinese: "根据；依照", type: "phrase", context: "______ the weather report, it will rain tomorrow.", full: "According to the weather report, it will rain tomorrow." },
+        { id: 34, english: "share sth with sb", chinese: "和某人分享某物", type: "phrase", context: "I teach my son to ______ (share his toys with) his friends.", full: "I teach my son to share his toys with his friends." },
+        { id: 35, english: "far from", chinese: "离……远", type: "phrase", context: "My school is not ______ my home.", full: "My school is not far from my home." },
+        { id: 36, english: "be born", chinese: "出世，出生", type: "phrase", context: "I was ______ in 2008.", full: "I was born in 2008." },
+        { id: 37, english: "one by one", chinese: "逐个地；逐一地", type: "phrase", context: "The students entered the classroom ______.", full: "The students entered the classroom one by one." },
+        // Usage Collection
+        { id: 38, english: "learn to do sth", chinese: "学习/学会做某事", type: "usage", context: "Children ______ (learn to walk) very quickly.", full: "Children learn to walk very quickly." },
+        { id: 39, english: "teach sb how to do sth", chinese: "教某人（如何）做某事", type: "usage", context: "He will ______ (teach me how to swim) next summer.", full: "He will teach me how to swim next summer." },
+        { id: 40, english: "make sb adjective", chinese: "使某人……（形容词）", type: "usage", context: "The good news ______ (made him happy).", full: "The good news made him happy." },
+        { id: 41, english: "make sb do sth", chinese: "使某人做某事", type: "usage", context: "The teacher ______ (made the students read) the book.", full: "The teacher made the students read the book." },
+        { id: 42, english: "show sth to sb", chinese: "向某人展示某物", type: "usage", context: "Please ______ (show your ticket to) the conductor.", full: "Please show your ticket to the conductor." },
+        { id: 43, english: "let sb do sth", chinese: "让某人做某事", type: "usage", context: "______ (Let me help) you with the heavy box.", full: "Let me help you with the heavy box." },
+        { id: 44, english: "love doing sth", chinese: "喜欢做某事", type: "usage", context: "She ______ (loves playing) the piano in her free time.", full: "She loves playing the piano in her free time." },
+        { id: 45, english: "the way to do sth", chinese: "做某事的方法", type: "usage", context: "This is ______ (the best way to learn) English.", full: "This is the best way to learn English." },
+        { id: 46, english: "use sth to do", chinese: "用某物做……", type: "usage", context: "We ______ (use a knife to cut) fruit.", full: "We use a knife to cut fruit." },
+        { id: 47, english: "keep sth adjective", chinese: "保持某物……", type: "usage", context: "Please ______ (keep the room clean).", full: "Please keep the room clean." },
+        { id: 48, english: "find sth adjective", chinese: "发现某物……", type: "usage", context: "I ______ (find this book interesting).", full: "I find this book interesting." },
+        { id: 49, english: "How about", chinese: "……怎么样？", type: "usage", context: "______ going for a walk after dinner?", full: "How about going for a walk after dinner?" },
+        { id: 50, english: "It is adjective to do sth", chinese: "做某事是……的", type: "usage", context: "______ (It is important to study) hard for the exam.", full: "It is important to study hard for the exam." },
+        { id: 51, english: "There be sb doing sth", chinese: "有某人在做某事", type: "usage", context: "______ (There is a bird singing) in the tree.", full: "There is a bird singing in the tree." },
+      ];
+
+      const AVATARS = [
+        "🐶", "🐱", "🦊", "🐼", "🐨", "🐯", "🦁", "🐮", "🐷", "🐸", "🦄", "🐙"
+      ];
+
+      const RIVALS = [
+        { avatar: "🤖", color: "#475569", name: "Robo-Racer" },
+        { avatar: "👽", color: "#059669", name: "Alien-X" },
+        { avatar: "👺", color: "#dc2626", name: "Red-Demon" },
+        { avatar: "🤡", color: "#db2777", name: "Joker-Kart" },
+        { avatar: "👻", color: "#64748b", name: "Ghost-Rider" },
+        { avatar: "🧟", color: "#65a30d", name: "Zombie-Z" },
+        { avatar: "🧛", color: "#7c3aed", name: "Vamp-V8" },
+        { avatar: "🦹", color: "#d97706", name: "Villain-V" },
+      ];
+
+      // --- LOGIC HELPER FUNCTIONS ---
+      function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+      }
+
+      // Voice loading helper
+      let availableVoices = [];
+      const loadVoices = () => {
+        availableVoices = window.speechSynthesis.getVoices();
+      };
+      if (window.speechSynthesis) {
+         loadVoices();
+         if (window.speechSynthesis.onvoiceschanged !== undefined) {
+             window.speechSynthesis.onvoiceschanged = loadVoices;
+         }
+      }
+
+      const generateQuestion = async (mistakes = []) => {
+        return new Promise((resolve) => {
+            let item;
+            const shouldReviewMistake = mistakes.length > 0 && Math.random() < 0.4;
+            
+            if (shouldReviewMistake) {
+              const mistakeId = mistakes[Math.floor(Math.random() * mistakes.length)];
+              const found = REVIEW_DATA.find(i => i.id === mistakeId);
+              item = found || REVIEW_DATA[Math.floor(Math.random() * REVIEW_DATA.length)];
+            } else {
+              const randomIndex = Math.floor(Math.random() * REVIEW_DATA.length);
+              item = REVIEW_DATA[randomIndex];
+            }
+
+            const distractors = [];
+            const sameTypeItems = REVIEW_DATA.filter(i => i.type === item.type && i.id !== item.id);
+            
+            while (distractors.length < 3) {
+              const pool = sameTypeItems.length >= 3 ? sameTypeItems : REVIEW_DATA.filter(i => i.id !== item.id);
+              const randomIdx = Math.floor(Math.random() * pool.length);
+              const randomItem = pool[randomIdx];
+              
+              if (!distractors.includes(randomItem.english)) {
+                  distractors.push(randomItem.english);
+              }
+            }
+
+            const options = shuffleArray([item.english, ...distractors]);
+
+            resolve({
+                type: 'multiple-choice',
+                reviewId: item.id,
+                questionText: `Choose the correct phrase for: ${item.chinese}`,
+                contextSentence: item.context, 
+                fullSentence: item.full,
+                hint: item.chinese,
+                targetAnswer: item.english,
+                options: options,
+            });
+        });
+      };
+
+      // Global variable to hold the utterance to prevent garbage collection
+      let currentUtterance = null;
+
+      const playTextToSpeech = (text) => {
+        return new Promise((resolve) => {
+          if (!window.speechSynthesis) {
+            console.warn("Browser does not support Speech Synthesis");
+            resolve();
+            return;
+          }
+
+          // Safety timeout: Resolve if audio takes too long or hangs (5 seconds max)
+          const safetyTimeout = setTimeout(() => {
+             resolve();
+          }, 5000);
+
+          // Force reset/cancel any pending speech
+          window.speechSynthesis.cancel();
+          // Resume in case it was paused (common Chrome issue)
+          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+
+          const utterance = new SpeechSynthesisUtterance(text);
+          currentUtterance = utterance; // Prevent GC
+
+          // Try to select an English voice
+          const preferredVoice = availableVoices.find(v => v.lang === 'en-US' && !v.localService) || 
+                                 availableVoices.find(v => v.lang === 'en-US') ||
+                                 availableVoices.find(v => v.lang.startsWith('en'));
+          
+          if (preferredVoice) utterance.voice = preferredVoice;
+
+          utterance.lang = 'en-US';
+          utterance.rate = 0.9;
+          utterance.pitch = 1;
+
+          utterance.onend = () => {
+            clearTimeout(safetyTimeout);
+            currentUtterance = null;
+            resolve();
+          };
+
+          utterance.onerror = (e) => {
+            clearTimeout(safetyTimeout);
+            // Only log real errors, not interruptions
+            if (e.error !== 'interrupted' && e.error !== 'canceled') {
+                 console.warn("Speech Synthesis Error:", e.error);
+            }
+            currentUtterance = null;
+            resolve();
+          };
+
+          window.speechSynthesis.speak(utterance);
+        });
+      };
+
+      // --- COMPONENTS ---
+
+      // 1. Race Scene Components
+      const KartSvg = ({ color, className, isFast = false }) => (
+        <svg viewBox="0 0 100 60" className={`w-32 h-20 drop-shadow-xl ${className}`} xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="25" width="12" height="6" rx="2" fill="#555" />
+          <rect x="0" y="33" width="12" height="6" rx="2" fill="#555" />
+          <circle cx="2" cy="28" r="3" fill="#333" />
+          <circle cx="2" cy="36" r="3" fill="#333" />
+          <path d="M10 20 L30 20 L32 42 L10 42 Z" fill="#333" />
+          <path d="M25 42 L25 25 L40 25 L50 32 L90 34 Q98 35 92 42 Z" fill={color} stroke="#222" strokeWidth="1" />
+          <path d="M30 35 L80 37" stroke="white" strokeWidth="4" strokeOpacity="0.8" strokeLinecap="round" />
+          <path d="M65 32 L62 20" stroke="#111" strokeWidth="3" strokeLinecap="round" />
+          <ellipse cx="62" cy="20" rx="6" ry="2" fill="none" stroke="#111" strokeWidth="2" transform="rotate(-15 62 20)" />
+          <path d="M85 42 L95 42 Q100 42 98 38 L90 34" fill="#eee" opacity="0.5" />
+          <g className={isFast ? "animate-wheel-spin-fast" : "animate-wheel-spin"} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+            <circle cx="20" cy="45" r="13" fill="#111" />
+            <circle cx="20" cy="45" r="7" fill="#fbbf24" />
+            <circle cx="20" cy="45" r="3" fill="#b45309" />
+            <path d="M20 38 L20 52 M13 45 L27 45" stroke="#b45309" strokeWidth="2" />
+          </g>
+          <g className={isFast ? "animate-wheel-spin-fast" : "animate-wheel-spin"} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+            <circle cx="82" cy="48" r="10" fill="#111" />
+            <circle cx="82" cy="48" r="5" fill="#fbbf24" />
+            <circle cx="82" cy="48" r="2" fill="#b45309" />
+            <path d="M82 43 L82 53 M77 48 L87 48" stroke="#b45309" strokeWidth="2" />
+          </g>
+        </svg>
+      );
+
+      const RaceScene = ({ userAvatarId, feedback }) => {
+        const [playerPos, setPlayerPos] = useState(30); 
+        const [rivalPos, setRivalPos] = useState(70);   
+        const [rivalIndex, setRivalIndex] = useState(0);
+        const [effect, setEffect] = useState('none');
+        const [isTransitioning, setIsTransitioning] = useState(true);
+
+        const currentRival = RIVALS[rivalIndex];
+
+        useEffect(() => {
+          let timer;
+
+          if (feedback === 'correct') {
+            setEffect('boost');
+            setIsTransitioning(true);
+            setPlayerPos(85); 
+            setRivalPos(-50); 
+
+            timer = setTimeout(() => {
+              setEffect('none');
+              setIsTransitioning(false);
+              setRivalIndex((prev) => (prev + 1) % RIVALS.length);
+              setRivalPos(150); 
+              requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                      setIsTransitioning(true);
+                      setPlayerPos(30); 
+                      setRivalPos(70);  
+                  });
+              });
+            }, 1000);
+          } 
+          else if (feedback === 'incorrect') {
+            setIsTransitioning(false);
+            setRivalPos(-40); 
+            setRivalIndex((prev) => (prev + 1) % RIVALS.length);
+
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                  setEffect('stumble');
+                  setIsTransitioning(true);
+                  setRivalPos(120); 
+                  setPlayerPos(20); 
+              });
+            });
+
+            timer = setTimeout(() => {
+              setEffect('none');
+              setIsTransitioning(false);
+              setRivalPos(70);
+              setPlayerPos(30);
+              requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                      setIsTransitioning(true);
+                  });
+              });
+            }, 1200);
+          }
+          return () => clearTimeout(timer);
+        }, [feedback]);
+
+        return (
+          <div className="relative w-full h-48 bg-gradient-to-b from-sky-400 to-sky-200 rounded-t-3xl overflow-hidden border-b-8 border-gray-700 shadow-inner group">
+            <div className="absolute top-4 right-10 text-5xl opacity-90 animate-pulse text-yellow-300">☀️</div>
+            <div className="absolute top-8 left-10 text-5xl opacity-80 animate-bounce-short text-white">☁️</div>
+            {effect === 'boost' && (
+              <div className="absolute inset-0 z-0 opacity-60 pointer-events-none mix-blend-overlay">
+                <div className="w-full h-1 bg-white absolute top-10 animate-slide-in" style={{animationDuration: '0.1s'}}></div>
+                <div className="w-full h-1 bg-white absolute top-24 animate-slide-in" style={{animationDuration: '0.15s', animationDelay: '0.05s'}}></div>
+              </div>
+            )}
+            <div className="absolute bottom-0 w-full h-20 bg-gray-600 flex items-center overflow-hidden border-t-4 border-gray-500">
+              <div className={`absolute top-1/2 w-[150%] h-3 flex gap-16 ${effect === 'boost' ? 'animate-road-scroll-fast opacity-70 blur-[1px]' : 'animate-road-scroll'}`}>
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div key={i} className="w-24 h-3 bg-yellow-400 skew-x-[-20deg] shadow-sm" />
+                ))}
+              </div>
+            </div>
+            {/* Rival */}
+            <div 
+              className="absolute bottom-4 z-10"
+              style={{ 
+                  left: `${rivalPos}%`, 
+                  transform: `translateY(${effect === 'stumble' ? '-5px' : '0'})`,
+                  transition: isTransitioning ? 'left 1s cubic-bezier(0.5, 0, 0.2, 1)' : 'none' 
+              }}
+            >
+              <div className="relative animate-rumble">
+                  <div className="absolute -top-7 left-8 text-5xl z-0 transform scale-x-[-1] drop-shadow-md">{currentRival.avatar}</div>
+                  <KartSvg color={currentRival.color} className="relative z-10" isFast={feedback === 'incorrect'} />
+              </div>
+            </div>
+            {/* Player */}
+            <div 
+              className={`absolute bottom-2 z-20 ${effect === 'stumble' ? 'animate-shake opacity-80' : ''}`}
+              style={{ 
+                  left: `${playerPos}%`,
+                  transition: isTransitioning ? 'left 1s cubic-bezier(0.5, 0, 0.2, 1)' : 'none' 
+              }}
+            >
+              <div className="relative group">
+                  {effect === 'boost' && (
+                      <div className="absolute top-8 -left-16 text-6xl animate-pulse scale-150 rotate-90 origin-right z-0 filter drop-shadow-lg text-orange-500">🔥</div>
+                  )}
+                  <div className={`transition-transform duration-300 ${effect === 'boost' ? '-rotate-1 scale-105' : ''}`}>
+                      <div className="animate-rumble">
+                          <div className="text-5xl absolute -top-8 left-8 z-0 drop-shadow-md transform -scale-x-100">{AVATARS[userAvatarId]}</div>
+                          <KartSvg color="#ef4444" className="relative z-10" isFast={effect === 'boost'} />
+                      </div>
+                  </div>
+                  {effect === 'boost' && (
+                      <div className="absolute -top-16 left-0 bg-white px-3 py-1 rounded-xl text-sm font-bold border-b-4 border-indigo-200 animate-bounce shadow-lg text-indigo-600 whitespace-nowrap z-30">Bye Bye! 👋</div>
+                  )}
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // 2. Login Component
+      const Login = ({ onLogin }) => {
+        const [username, setUsername] = useState('');
+        const [selectedAvatar, setSelectedAvatar] = useState(0);
+
+        const handleStart = () => {
+          if (username.trim().length > 0) {
+            onLogin({
+              username: username.trim(),
+              score: 0,
+              streak: 0,
+              bestStreak: 0,
+              avatarId: selectedAvatar,
+              mistakes: [],
+            });
+          }
+        };
+
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen p-4 animate-slide-in">
+            <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-xl w-full max-w-md border-4 border-white ring-1 ring-indigo-100">
+              <div className="text-center mb-8">
+                <h1 className="font-display text-4xl font-bold text-primary mb-2">EngPower</h1>
+                <p className="text-indigo-900 text-lg font-bold">八年级英语短语大师</p>
+                <p className="text-gray-400 text-sm">8th Grade Phrase Master</p>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">选择你的头像 (Pick Your Avatar)</label>
+                <div className="flex flex-wrap gap-2 justify-center mb-4 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                  {AVATARS.map((emoji, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedAvatar(index)}
+                      className={`text-2xl w-10 h-10 rounded-full transition-all transform hover:scale-110 ${
+                        selectedAvatar === index ? 'bg-white shadow-lg ring-2 ring-primary scale-110' : 'opacity-50 hover:opacity-100'
+                      }`}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-gray-700 text-sm font-bold mb-2 ml-1">你的名字 (Your Name)</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+                  placeholder="请输入名字 / Enter your name..."
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0 focus:outline-none text-lg transition-colors bg-white"
+                />
+              </div>
+
+              <button
+                onClick={handleStart}
+                disabled={!username.trim()}
+                className={`w-full py-4 rounded-xl text-white font-bold text-xl shadow-lg transform transition-all active:scale-95 ${
+                  username.trim() ? 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl' : 'bg-gray-300 cursor-not-allowed'
+                }`}
+              >
+                开始游戏 (Start Game) 🚀
+              </button>
+            </div>
+          </div>
+        );
+      };
+
+      // 3. Leaderboard Component
+      const Leaderboard = ({ entries, currentUser, onBack }) => {
+        const sortedEntries = [...entries].sort((a, b) => b.score - a.score).slice(0, 10);
+
+        return (
+          <div className="min-h-screen p-4 pt-10 animate-slide-in max-w-md mx-auto">
+            <h2 className="text-3xl font-display font-bold text-center text-indigo-700 mb-2">🏆 排行榜</h2>
+            <div className="bg-white rounded-3xl shadow-xl border-2 border-indigo-100 overflow-hidden mt-6">
+              {sortedEntries.length === 0 ? (
+                  <div className="p-8 text-center text-gray-400">暂无记录，快来争夺第一名！</div>
+              ) : (
+                  sortedEntries.map((entry, index) => {
+                  const isCurrentUser = currentUser && entry.username === currentUser.username && entry.score === currentUser.score;
+                  let rankBadge = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `${index + 1}`;
+                  return (
+                      <div key={`${entry.username}-${index}`} className={`flex items-center p-4 border-b border-gray-100 ${isCurrentUser ? 'bg-indigo-50' : ''}`}>
+                      <div className="w-8 text-center font-bold text-gray-400 text-lg mr-2">{rankBadge}</div>
+                      <div className="text-2xl mr-3">{AVATARS[entry.avatarId]}</div>
+                      <div className="flex-1">
+                          <p className={`font-bold ${isCurrentUser ? 'text-indigo-700' : 'text-gray-800'}`}>{entry.username} {isCurrentUser && '(你)'}</p>
+                      </div>
+                      <div className="font-display font-bold text-xl text-indigo-600">{entry.score}</div>
+                      </div>
+                  );
+                  })
+              )}
+            </div>
+            <button onClick={onBack} className="w-full mt-8 bg-white text-indigo-600 font-bold py-4 rounded-xl border-2 border-indigo-100 hover:bg-indigo-50 shadow-sm">再玩一次 (Play Again)</button>
+          </div>
+        );
+      };
+
+      // 4. Game Component
+      const Game = ({ user, onUpdateUser, onEndGame, initialQuestionPromise }) => {
+        const [question, setQuestion] = useState(null);
+        const [loading, setLoading] = useState(true);
+        const [feedback, setFeedback] = useState('none');
+        const [pointsGained, setPointsGained] = useState(0);
+        const [selectedOption, setSelectedOption] = useState(null);
+        const [showHint, setShowHint] = useState(false);
+        const nextQuestionPromise = useRef(initialQuestionPromise || null);
+        
+        useEffect(() => { loadNewQuestion(); }, []);
+
+        const preloadNextQuestion = () => {
+          if (!nextQuestionPromise.current) {
+              nextQuestionPromise.current = generateQuestion(user.mistakes);
+          }
+        };
+
+        const loadNewQuestion = async () => {
+          setLoading(true);
+          setFeedback('none');
+          setSelectedOption(null);
+          setShowHint(false);
+          const q = await (nextQuestionPromise.current || generateQuestion(user.mistakes));
+          setQuestion(q);
+          setLoading(false);
+          nextQuestionPromise.current = null;
+          preloadNextQuestion();
+        };
+
+        const handleOptionClick = async (option) => {
+          if (feedback !== 'none' || loading || !question) return;
+          setSelectedOption(option);
+          setShowHint(true);
+          const isCorrect = option === question.targetAnswer;
+
+          if (isCorrect) {
+            const basePoints = 10;
+            const streakBonus = Math.floor(user.streak / 3) * 5;
+            const totalPoints = basePoints + streakBonus;
+            setPointsGained(totalPoints);
+            setFeedback('correct');
+            const newMistakes = user.mistakes.filter(id => id !== question.reviewId);
+            onUpdateUser({ ...user, score: user.score + totalPoints, streak: user.streak + 1, mistakes: newMistakes });
+          } else {
+            setFeedback('incorrect');
+            const newMistakes = [...user.mistakes];
+            if (!newMistakes.includes(question.reviewId)) newMistakes.push(question.reviewId);
+            onUpdateUser({ ...user, streak: 0, mistakes: newMistakes });
+          }
+
+          await playTextToSpeech(question.fullSentence);
+          loadNewQuestion();
+        };
+
+        const getRenderParts = () => {
+          if (!question) return [];
+          const parts = question.contextSentence.split('______');
+          const gaps = parts.length - 1;
+          const answerParts = question.targetAnswer.split('...').filter(p => p.trim() !== '');
+          const shouldSplitAnswer = gaps > 1 && answerParts.length === gaps;
+
+          return parts.map((part, i, arr) => {
+              const isLast = i === arr.length - 1;
+              let textToDisplay = question.targetAnswer;
+              if (shouldSplitAnswer && i < arr.length - 1) textToDisplay = answerParts[i];
+              return { text: part, isLast, answerText: textToDisplay };
+          });
+        };
+
+        if (loading && !question) {
+          return (
+            <div className="flex flex-col items-center justify-center h-screen text-indigo-600">
+              <div className="w-16 h-16 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+              <p className="font-display text-xl animate-pulse">准备题目中... (Loading...)</p>
+            </div>
+          );
+        }
+
+        return (
+          <div className="max-w-2xl mx-auto p-4 pt-6 min-h-screen flex flex-col">
+            <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-indigo-50">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">{AVATARS[user.avatarId]}</span>
+                <div>
+                  <p className="font-bold text-gray-800">{user.username}</p>
+                  <p className="text-xs text-gray-500 font-bold tracking-wider">LEVEL 8 MASTER</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="text-center">
+                  <p className="text-xs text-gray-400 font-bold uppercase">连胜</p>
+                  <p className={`font-display font-bold text-xl ${user.streak > 2 ? 'text-orange-500' : 'text-gray-600'}`}>🔥 {user.streak}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-400 font-bold uppercase">得分</p>
+                  <p className="font-display font-bold text-xl text-indigo-600">💎 {user.score}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex-1 flex flex-col">
+              <div className="relative mb-6">
+                  <div className="mb-[-20px] relative z-10">
+                      <RaceScene userAvatarId={user.avatarId} feedback={feedback} />
+                  </div>
+                  {feedback === 'correct' && (
+                      <div className="absolute left-0 right-0 top-full mt-4 z-30 flex justify-center pointer-events-none">
+                          <div className="bg-green-100 border-4 border-green-500 text-green-700 px-8 py-4 rounded-3xl shadow-2xl animate-bounce-short text-center">
+                              <p className="text-2xl font-black">太棒了!</p>
+                              <p className="text-lg font-bold">+{pointsGained} Points</p>
+                          </div>
+                      </div>
+                  )}
+                  <div className={`bg-white rounded-b-3xl rounded-t-none shadow-xl p-6 pt-10 border-b-8 border-indigo-100 transition-all duration-300 ${feedback === 'incorrect' ? 'animate-shake border-red-100' : ''}`}>
+                      <div className="mb-4">
+                          <span className="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">选择题</span>
+                          {user.mistakes.includes(question?.reviewId || -1) && (
+                             <span className="ml-2 bg-red-100 text-red-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">复习错题</span>
+                          )}
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-800 mb-6 leading-relaxed">
+                         <span className="whitespace-pre-wrap">
+                              {getRenderParts().map((item, i) => (
+                                  <React.Fragment key={i}>
+                                      {item.text}
+                                      {!item.isLast && (
+                                          feedback === 'correct' ? (
+                                              <span className="inline-block text-green-600 font-black border-b-4 border-green-300 mx-1 px-1">{item.answerText}</span>
+                                          ) : (
+                                              <span className="inline-block min-w-[80px] border-b-4 border-indigo-300 mx-1 text-center text-indigo-600">
+                                                  {feedback === 'incorrect' ? <span className="text-red-500 font-bold">{item.answerText}</span> : ''}
+                                              </span>
+                                          )
+                                      )}
+                                  </React.Fragment>
+                              ))}
+                          </span>
+                      </h2>
+                      <div onClick={() => setShowHint(true)} className={`relative cursor-pointer group h-16 rounded-xl transition-all duration-500 ${showHint ? 'bg-indigo-50 border border-indigo-100' : 'bg-indigo-600 hover:bg-indigo-500 shadow-md transform hover:-translate-y-1'}`}>
+                          <div className="absolute inset-0 flex items-center justify-center w-full h-full px-4 text-center">
+                             {showHint ? (
+                                 <div className="animate-slide-in">
+                                   <p className="text-gray-400 text-xs font-bold mb-1 uppercase">Translation</p>
+                                   <p className="text-lg text-indigo-900 font-bold">{question?.hint}</p>
+                                 </div>
+                             ) : (
+                                 <div className="flex items-center gap-2 text-white font-bold animate-pulse">
+                                    <span>🃏 点击翻卡查看中文</span>
+                                 </div>
+                             )}
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  {question?.options.map((option, idx) => {
+                      let btnClass = 'bg-white hover:bg-indigo-50 border-gray-200 text-gray-700';
+                      if (feedback !== 'none') {
+                          if (option === question?.targetAnswer) btnClass = 'bg-green-500 text-white border-green-600 shadow-md ring-2 ring-green-200';
+                          else if (option === selectedOption && feedback === 'incorrect') btnClass = 'bg-red-500 text-white border-red-600 opacity-60';
+                          else btnClass = 'bg-gray-100 text-gray-400 border-gray-100 opacity-50';
+                      } else if (selectedOption === option) {
+                          btnClass = 'bg-indigo-600 text-white';
+                      }
+                      return (
+                        <button key={idx} onClick={() => handleOptionClick(option)} disabled={feedback !== 'none' || loading}
+                            className={`py-4 px-6 rounded-2xl font-bold text-lg text-left shadow-sm border-2 transition-all transform duration-200 ${btnClass} ${feedback === 'none' && !loading ? 'hover:scale-[1.02] active:scale-95' : ''}`}>
+                            <span className="inline-block w-6 text-sm opacity-50 mr-2">{String.fromCharCode(65 + idx)}.</span>{option}
+                        </button>
+                      );
+                  })}
+              </div>
+            </div>
+            
+            <button onClick={onEndGame} className="text-gray-400 font-bold hover:text-gray-600 transition-colors py-4 flex items-center justify-center gap-2">
+              <span>🚪</span> 保存并退出 (Save & Quit)
+            </button>
+          </div>
+        );
+      };
+
+      // 5. Main App Component
+      function App() {
+        const [view, setView] = useState('login');
+        const [currentUser, setCurrentUser] = useState(null);
+        const [leaderboard, setLeaderboard] = useState([]);
+        const [mistakeHistory, setMistakeHistory] = useState({});
+        const firstQuestionPromiseRef = useRef(null);
+
+        useEffect(() => {
+          firstQuestionPromiseRef.current = generateQuestion([]);
+          const savedBoard = localStorage.getItem('engpower-leaderboard');
+          if (savedBoard) setLeaderboard(JSON.parse(savedBoard));
+          const savedMistakes = localStorage.getItem('engpower-mistakes');
+          if (savedMistakes) setMistakeHistory(JSON.parse(savedMistakes));
+        }, []);
+
+        const handleLogin = (user) => {
+          const existingMistakes = mistakeHistory[user.username] || [];
+          setCurrentUser({ ...user, mistakes: existingMistakes });
+          setView('game');
+        };
+
+        const handleUpdateUser = (updatedUser) => {
+          setCurrentUser(updatedUser);
+          const newMistakeHistory = { ...mistakeHistory, [updatedUser.username]: updatedUser.mistakes };
+          setMistakeHistory(newMistakeHistory);
+          localStorage.setItem('engpower-mistakes', JSON.stringify(newMistakeHistory));
+        };
+
+        const handleEndGame = () => {
+          if (currentUser) {
+            const newEntry = { username: currentUser.username, score: currentUser.score, avatarId: currentUser.avatarId, date: new Date().toISOString() };
+            const updatedLeaderboard = [...leaderboard, newEntry];
+            const uniqueLeaderboard = [];
+            const map = new Map();
+            updatedLeaderboard.sort((a, b) => b.score - a.score);
+            for (const item of updatedLeaderboard) {
+                if (!map.has(item.username)) {
+                    map.set(item.username, true);
+                    uniqueLeaderboard.push(item);
+                }
+            }
+            setLeaderboard(uniqueLeaderboard);
+            localStorage.setItem('engpower-leaderboard', JSON.stringify(uniqueLeaderboard));
+            setView('leaderboard');
+          }
+        };
+
+        const handleRestart = () => {
+          setCurrentUser(null);
+          setView('login');
+          firstQuestionPromiseRef.current = generateQuestion([]);
+        };
+
+        return (
+          <div className="font-sans antialiased text-gray-900">
+            {view === 'login' && <Login onLogin={handleLogin} />}
+            {view === 'game' && currentUser && (
+              <Game user={currentUser} onUpdateUser={handleUpdateUser} onEndGame={handleEndGame} initialQuestionPromise={firstQuestionPromiseRef.current} />
+            )}
+            {view === 'leaderboard' && <Leaderboard entries={leaderboard} currentUser={currentUser || undefined} onBack={handleRestart} />}
+          </div>
+        );
+      }
+
+      // --- MOUNT ---
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>
